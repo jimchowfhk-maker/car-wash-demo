@@ -1,7 +1,7 @@
 // Supabase 配置
 // 请将下面的值替换为你自己的 Supabase 项目信息
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';  // 例如 https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://tammstsgvljmwidstaxk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_cMvjPAGvmBOPYZCK9_QHOw_WibWPWkT';
 
 // 后台管理密码 (SHA-256 hash of 'paopao2025')
 const ADMIN_PASSWORD_HASH = '7c0a5e3a4f1e2d8b9c6f5a3e1d0b8c7a6f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1';
