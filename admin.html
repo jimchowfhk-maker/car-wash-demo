@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>泡泡星球 · 调研数据后台</title>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<!-- ===== 密码门 ===== -->
+<div class="auth-gate" id="authGate">
+  <div class="auth-card">
+    <div style="font-size:48px;margin-bottom:16px">🔒</div>
+    <h1 class="auth-title">泡泡星球后台</h1>
+    <p class="auth-sub">请输入管理密码</p>
+    <input class="auth-input" type="password" id="authPassword" placeholder="输入密码" onkeyup="if(event.key==='Enter')checkAuth()">
+    <div class="auth-error" id="authError">密码错误，请重试</div>
+    <button class="btn-primary" style="width:100%" onclick="checkAuth()">进入后台</button>
+  </div>
+</div>
+
+<!-- ===== 主仪表盘 ===== -->
+<div class="dashboard" id="dashboard">
+  <!-- 顶部导航 -->
+  <div style="background:#fff;padding:16px 20px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <span style="font-size:20px;font-weight:700">📊 泡泡星球调研后台</span>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-secondary" style="padding:8px 16px;font-size:13px" onclick="loadData()">🔄 刷新</button>
+    </div>
+  </div>
+
+  <!-- 统计卡片 -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-number" id="statTotal">-</div>
+      <div class="stat-label">总回复数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statSurvey">-</div>
+      <div class="stat-label">问卷提交</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statImport">-</div>
+      <div class="stat-label">CSV 导入</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="statMale">-</div>
+      <div class="stat-label">男性比例</div>
+    </div>
+  </div>
+
+  <!-- Tab 栏 -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('charts')">📊 统计图表</button>
+    <button class="tab-btn" onclick="switchTab('table')">📋 数据列表</button>
+    <button class="tab-btn" onclick="switchTab('import')">📥 导入数据</button>
+  </div>
+
+  <!-- ===== 图表 Tab ===== -->
+  <div class="tab-content active" id="tab-charts">
+    <div class="chart-grid">
+      <div class="chart-card">
+        <div class="chart-title">性别分布</div>
+        <div class="chart-container"><canvas id="chartGender"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">年龄分布</div>
+        <div class="chart-container"><canvas id="chartAge"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">车辆类型</div>
+        <div class="chart-container"><canvas id="chartCarType"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">洗车频次</div>
+        <div class="chart-container"><canvas id="chartFrequency"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">单次洗车价格</div>
+        <div class="chart-container"><canvas id="chartPrice"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">选店首要因素</div>
+        <div class="chart-container"><canvas id="chartPriority"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">不满意因素</div>
+        <div class="chart-container"><canvas id="chartDissatisfaction"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">了解洗车店的渠道</div>
+        <div class="chart-container"><canvas id="chartChannel"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">满意度分布</div>
+        <div class="chart-container"><canvas id="chartSatisfaction"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">车辆品牌 Top 10</div>
+        <div class="chart-container"><canvas id="chartBrand"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 数据列表 Tab ===== -->
+  <div class="tab-content" id="tab-table">
+    <div class="table-controls">
+      <input class="search-input" type="text" id="searchInput" placeholder="搜索姓名、品牌、区域..." oninput="filterTable()">
+      <button class="btn-secondary" style="padding:10px 20px;font-size:13px" onclick="exportCSV()">📥 导出 CSV</button>
+    </div>
+    <div class="data-table-wrap">
+      <table class="data-table" id="dataTable">
+        <thead>
+          <tr>
+            <th>姓名</th>
+            <th>来源</th>
+            <th>性别</th>
+            <th>年龄</th>
+            <th>车型</th>
+            <th>品牌</th>
+            <th>洗车频次</th>
+            <th>首要因素</th>
+            <th>满意度</th>
+            <th>价格区间</th>
+            <th>区域</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== 导入 Tab ===== -->
+  <div class="tab-content" id="tab-import">
+    <div class="import-section">
+      <h3 style="margin-bottom:12px">导入 CSV 数据</h3>
+      <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px">上传泡泡星球深圳车主访谈数据表，系统会自动匹配字段并导入数据库。</p>
+
+      <div class="import-drop" id="importDrop" onclick="document.getElementById('csvFile').click()">
+        <div class="import-drop-icon">📄</div>
+        <div class="import-drop-text">点击选择 CSV 文件，或拖拽文件到此处</div>
+      </div>
+      <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="handleCSVFile(this.files[0])">
+
+      <div class="import-preview" id="importPreview">
+        <div class="import-stats" id="importStats"></div>
+        <div class="import-progress"><div class="import-progress-bar" id="importProgressBar"></div></div>
+        <div id="importLog" style="font-size:13px;color:var(--text-secondary);max-height:200px;overflow-y:auto;margin:12px 0"></div>
+        <button class="btn-primary" id="importBtn" style="width:100%" onclick="doImport()">确认导入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 详情侧边栏 -->
+<div class="overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="detail-modal" id="detailModal">
+  <div class="detail-header">
+    <span style="font-weight:600;font-size:17px" id="detailTitle">详情</span>
+    <button class="detail-close" onclick="closeDetail()">✕</button>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>
