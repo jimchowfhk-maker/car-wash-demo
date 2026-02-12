@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>泡泡星球 · 洗车服务</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #f5f7fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  max-width: 430px;
+  margin: 0 auto;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.container { padding-bottom: 100px; }
+
+/* 顶部导航栏 */
+.nav-bar {
+  background: #fff;
+  padding: 54px 20px 16px;
+  text-align: center;
+  color: #1d1d1f;
+  font-size: 17px;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 0.5px solid #e5e5e5;
+}
+
+/* 品牌头部 */
+.brand-header {
+  background: #fff;
+  text-align: center;
+  padding: 32px 20px 24px;
+}
+.brand-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: 0.04em;
+}
+.brand-slogan {
+  font-size: 14px;
+  color: #86868b;
+  margin-top: 6px;
+  letter-spacing: 0.05em;
+}
+
+/* 推荐横幅 */
+.recommend-banner {
+  margin: 12px;
+  background: linear-gradient(135deg, #eef4ff, #dce8ff);
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+.recommend-label {
+  display: inline-block;
+  background: #0071e3;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+.recommend-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0071e3;
+}
+
+/* 产品列表 */
+.product-list { padding: 0 12px; }
+
+/* 主推产品卡片 */
+.product-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 12px;
+  position: relative;
+  border: 1.5px solid #eee;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+.product-card:active { transform: scale(0.98); }
+.product-selected {
+  border-color: #0071e3;
+  box-shadow: 0 2px 12px rgba(0,113,227,0.1);
+}
+
+/* 卡片头部：名称+价格 */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.product-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+.card-price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.price-original {
+  font-size: 14px;
+  color: #bbb;
+  text-decoration: line-through;
+}
+.price-current {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+.price-unit {
+  font-size: 14px;
+  color: #1d1d1f;
+  font-weight: 600;
+}
+
+/* 副标题 */
+.product-subtitle {
+  font-size: 13px;
+  color: #86868b;
+  margin-top: 2px;
+}
+
+/* 时长 */
+.product-duration {
+  font-size: 12px;
+  color: #86868b;
+  margin-top: 4px;
+}
+.product-duration::before {
+  content: '⏱ ';
+}
+
+/* 服务项 */
+.service-list {
+  margin-top: 14px;
+}
+.service-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+  color: #1d1d1f;
+  line-height: 1.5;
+}
+.service-icon {
+  color: #0071e3;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* 选中标志 */
+.check-icon {
+  position: absolute;
+  top: 20px; right: 20px;
+  width: 24px; height: 24px;
+  background: #0071e3;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 双列布局 */
+.product-row {
+  display: flex;
+  gap: 12px;
+}
+.product-row .product-card {
+  flex: 1;
+  min-width: 0;
+}
+.product-row .product-name {
+  font-size: 17px;
+}
+.product-row .price-current {
+  font-size: 24px;
+}
+
+/* 底部标语 */
+.footer-slogan {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: #bbb;
+  letter-spacing: 0.05em;
+}
+
+/* 底部栏 */
+.bottom-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 14px 20px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 0.5px solid #e5e5e5;
+}
+.summary-label { font-size: 13px; color: #86868b; }
+.summary-price { font-size: 20px; color: #1d1d1f; font-weight: 600; }
+.submit-btn {
+  background: #0071e3;
+  padding: 12px 28px;
+  border-radius: 980px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.submit-btn:active { background: #006edb; transform: scale(0.97); }
+.btn-disabled { opacity: 0.4; pointer-events: none; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.75);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 980px;
+  font-size: 15px;
+  font-weight: 500;
+  z-index: 999;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* 排队页面 */
+.queue-page {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  max-width: 430px;
+  margin: 0 auto;
+  background: #f5f7fa;
+  z-index: 900;
+  flex-direction: column;
+}
+.queue-page.show { display: flex; }
+.queue-nav {
+  background: #fff;
+  padding: 54px 20px 16px;
+  color: #1d1d1f;
+  font-size: 17px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  border-bottom: 0.5px solid #e5e5e5;
+}
+.queue-back {
+  font-size: 22px;
+  margin-right: 12px;
+  cursor: pointer;
+  color: #0071e3;
+  font-weight: 500;
+}
+.queue-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 24px;
+  overflow-y: auto;
+}
+.queue-icon {
+  width: 100px; height: 100px;
+  background: #fff;
+  border-radius: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  margin-bottom: 24px;
+  border: 1px solid #eee;
+}
+.queue-product-name {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+.queue-product-price {
+  font-size: 17px;
+  color: #1d1d1f;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.queue-info-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px 24px;
+  margin-top: 32px;
+  width: 100%;
+  border: 1px solid #eee;
+}
+.queue-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+.queue-info-row + .queue-info-row { border-top: 0.5px solid #f0f0f0; }
+.queue-info-label { font-size: 15px; color: #86868b; }
+.queue-info-value { font-size: 20px; font-weight: 600; color: #1d1d1f; }
+.queue-info-value.highlight { color: #0071e3; }
+.queue-time-value { color: #ff3b30; }
+.queue-tip {
+  margin-top: 24px;
+  font-size: 13px;
+  color: #bbb;
+  text-align: center;
+  line-height: 1.65;
+}
+.queue-confirm-btn {
+  margin-top: 36px;
+  width: 100%;
+  background: #0071e3;
+  padding: 16px;
+  border-radius: 980px;
+  color: #fff;
+  font-size: 17px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+.queue-confirm-btn:active { background: #006edb; transform: scale(0.97); }
+.queue-success { display: none; text-align: center; }
+.queue-success.show { display: block; }
+.queue-success-icon {
+  width: 80px; height: 80px;
+  background: #34c759;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #fff;
+  margin: 0 auto 20px;
+}
+.queue-success-text { font-size: 24px; font-weight: 600; color: #1d1d1f; }
+.queue-success-sub { font-size: 15px; color: #86868b; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <div class="nav-bar">泡泡星球</div>
+
+  <!-- 品牌头部 -->
+  <div class="brand-header">
+    <div class="brand-name">泡泡星球</div>
+    <div class="brand-slogan">极速焕新 闪亮登场</div>
+  </div>
+
+  <!-- 推荐横幅 -->
+  <div class="recommend-banner">
+    <span class="recommend-label">推荐</span>
+    <div class="recommend-text">最近雨多灰大，认真洗洗更耐脏</div>
+  </div>
+
+  <!-- 产品列表 -->
+  <div class="product-list" id="productList"></div>
+
+  <!-- 底部标语 -->
+  <div class="footer-slogan">机器人洗车 · 无接触清洁 · 呵护车漆</div>
+
+  <!-- 底部栏 -->
+  <div class="bottom-bar">
+    <div class="price-summary">
+      <div class="summary-label" id="summaryLabel">请选择洗车套餐</div>
+      <div class="summary-price" id="summaryPrice" style="display:none"></div>
+    </div>
+    <button class="submit-btn btn-disabled" id="submitBtn" onclick="handleSubmit()">立即预约</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- 排队页面 -->
+<div class="queue-page" id="queuePage">
+  <div class="queue-nav">
+    <span class="queue-back" onclick="closeQueuePage()">‹</span>
+    <span>排队等候</span>
+  </div>
+  <div class="queue-body">
+    <div id="queuePending">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="queue-icon">🚗</div>
+        <div class="queue-product-name" id="queueProductName"></div>
+        <div class="queue-product-price" id="queueProductPrice"></div>
+      </div>
+      <div class="queue-info-card">
+        <div class="queue-info-row">
+          <span class="queue-info-label">当前排队人数</span>
+          <span class="queue-info-value highlight" id="queueCount"></span>
+        </div>
+        <div class="queue-info-row">
+          <span class="queue-info-label">每辆车预计用时</span>
+          <span class="queue-info-value" id="queuePerCar"></span>
+        </div>
+        <div class="queue-info-row">
+          <span class="queue-info-label">预计等待时间</span>
+          <span class="queue-info-value queue-time-value" id="queueWaitTime"></span>
+        </div>
+      </div>
+      <div class="queue-tip">确认排队后，请在店内等候叫号<br>轮到您时我们会通知您</div>
+      <button class="queue-confirm-btn" onclick="confirmQueue()">确认排队</button>
+    </div>
+    <div class="queue-success" id="queueSuccess">
+      <div class="queue-success-icon">✓</div>
+      <div class="queue-success-text">排队成功！</div>
+      <div class="queue-success-sub" id="queueSuccessMsg"></div>
+      <button class="queue-confirm-btn" style="margin-top:24px" onclick="closeQueuePage()">返回首页</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const products = [
+  {
+    name: '认真洗洗',
+    subtitle: '脏的不行，认真洗洗',
+    price: 48,
+    originalPrice: 60,
+    duration: 8,
+    tag: '推荐',
+    featured: true,
+    services: [
+      '清除全车表层大面积脏污及树胶、鸟屎、虫尸等顽固污渍',
+      '轮胎清洗',
+      '全车极致干燥无残水'
+    ]
+  },
+  {
+    name: '快速冲冲',
+    subtitle: '刚好有空，快速冲冲',
+    price: 40,
+    originalPrice: null,
+    duration: 4,
+    tag: '',
+    featured: false,
+    services: [
+      '清除全车表层大面积脏污',
+      '轮胎清洗',
+      '全车重点区域仿形风干'
+    ]
+  },
+  {
+    name: '亮亮洗洗',
+    subtitle: '增护漆 亮亮洗洗',
+    price: 80,
+    originalPrice: null,
+    duration: 12,
+    tag: '',
+    featured: false,
+    services: [
+      '清除全车表层大面积脏污及树胶、鸟屎、虫尸等顽固污渍',
+      '轮胎清洗',
+      '全车极致干燥无残水',
+      '漆面增亮 ✨ Pro'
+    ]
+  }
+];
+
+let selectedIndex = null;
+
+function renderProducts() {
+  const list = document.getElementById('productList');
+  // 认真洗洗 is featured (index 0), shown as large card
+  // 快速冲冲 and 亮亮洗洗 shown side by side
+  const featured = products[0];
+  const others = [products[1], products[2]];
+
+  let html = '';
+
+  // Featured card
+  html += `
+    <div class="product-card ${selectedIndex === 0 ? 'product-selected' : ''}" onclick="selectProduct(0)">
+      ${selectedIndex === 0 ? '<div class="check-icon">✓</div>' : ''}
+      <div class="card-header">
+        <div>
+          <div class="product-name">${featured.name}</div>
+          <div class="product-subtitle">${featured.subtitle}</div>
+        </div>
+        <div class="card-price">
+          ${featured.originalPrice ? `<span class="price-original">${featured.originalPrice}元</span>` : ''}
+          <span class="price-current">${featured.price}</span>
+          <span class="price-unit">元</span>
+        </div>
+      </div>
+      <div class="product-duration">${featured.duration}min</div>
+      <div class="service-list">
+        ${featured.services.map(s => `<div class="service-item"><span class="service-icon">✔</span><span>${s}</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+
+  // Two smaller cards side by side
+  html += '<div class="product-row">';
+  others.forEach((p, i) => {
+    const realIndex = i + 1;
+    html += `
+      <div class="product-card ${selectedIndex === realIndex ? 'product-selected' : ''}" onclick="selectProduct(${realIndex})">
+        ${selectedIndex === realIndex ? '<div class="check-icon">✓</div>' : ''}
+        <div class="card-header" style="flex-direction:column;gap:4px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;width:100%">
+            <span class="product-name">${p.name}</span>
+            <span><span class="price-current">${p.price}</span><span class="price-unit">元</span></span>
+          </div>
+        </div>
+        <div class="product-subtitle">${p.subtitle}</div>
+        <div class="product-duration">${p.duration}min</div>
+        <div class="service-list">
+          ${p.services.map(s => `<div class="service-item"><span class="service-icon">✔</span><span>${s}</span></div>`).join('')}
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+
+  list.innerHTML = html;
+}
+
+function selectProduct(index) {
+  selectedIndex = index;
+  renderProducts();
+  const p = products[index];
+  document.getElementById('summaryLabel').textContent = '已选：' + p.name;
+  document.getElementById('summaryPrice').textContent = '¥' + p.price;
+  document.getElementById('summaryPrice').style.display = 'block';
+  document.getElementById('submitBtn').classList.remove('btn-disabled');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1500);
+}
+
+function handleSubmit() {
+  if (selectedIndex === null) { showToast('请先选择套餐'); return; }
+  openQueuePage();
+}
+
+function openQueuePage() {
+  const p = products[selectedIndex];
+  const queueCount = Math.floor(Math.random() * 6) + 1;
+  const waitTime = queueCount * p.duration;
+  document.getElementById('queueProductName').textContent = p.name;
+  document.getElementById('queueProductPrice').textContent = '¥' + p.price;
+  document.getElementById('queueCount').textContent = queueCount + ' 人';
+  document.getElementById('queuePerCar').textContent = p.duration + ' 分钟';
+  if (waitTime >= 60) {
+    const h = Math.floor(waitTime / 60), m = waitTime % 60;
+    document.getElementById('queueWaitTime').textContent = h + ' 小时' + (m > 0 ? ' ' + m + ' 分钟' : '');
+  } else {
+    document.getElementById('queueWaitTime').textContent = '约 ' + waitTime + ' 分钟';
+  }
+  document.getElementById('queuePending').style.display = 'block';
+  document.getElementById('queueSuccess').className = 'queue-success';
+  document.getElementById('queuePage').classList.add('show');
+}
+
+function closeQueuePage() { document.getElementById('queuePage').classList.remove('show'); }
+
+function confirmQueue() {
+  const p = products[selectedIndex];
+  document.getElementById('queuePending').style.display = 'none';
+  document.getElementById('queueSuccessMsg').textContent = '您已成功排队「' + p.name + '」，请耐心等候';
+  document.getElementById('queueSuccess').className = 'queue-success show';
+}
+
+renderProducts();
+</script>
+</body>
+</html>
