@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>泡泡星球 · 排队预约</title>
+<link rel="stylesheet" href="css/common.css">
+<link rel="stylesheet" href="css/queue.css">
+</head>
+<body>
+
+<div class="page-container" id="app">
+
+  <!-- ===== Screen 1: 登录/注册 ===== -->
+  <div class="screen active" id="screen-auth">
+    <div class="auth-gate">
+      <div class="auth-card">
+        <div class="store-logo">🚙</div>
+        <h1 class="auth-title">泡泡星球</h1>
+        <p class="auth-sub">登录后即可在线排队预约洗车</p>
+        <input class="auth-input" type="text" id="authUsername" placeholder="输入用户名" maxlength="20" autocomplete="off">
+        <input class="auth-input" type="password" id="authPassword" placeholder="输入密码" maxlength="32" onkeyup="if(event.key==='Enter')doLogin()">
+        <div class="auth-error" id="authError"></div>
+        <button class="btn-primary" style="width:100%;margin-bottom:10px" onclick="doLogin()">登录</button>
+        <button class="btn-secondary" style="width:100%;padding:12px 28px;font-size:15px" onclick="doRegister()">注册新账号</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Screen 2: 产品选择 ===== -->
+  <div class="screen" id="screen-products">
+    <!-- 顶部导航 -->
+    <div class="nav-bar">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <span style="font-size:17px;font-weight:600">泡泡星球科兴店</span>
+        <span class="user-badge" id="userBadge" onclick="doLogout()"></span>
+      </div>
+    </div>
+
+    <!-- 店铺头部 -->
+    <div class="store-header">
+      <div class="store-avatar">🚙</div>
+      <div class="store-info">
+        <div class="store-name">泡泡星球科兴店</div>
+        <div class="store-desc">机器人洗车 · 无接触清洁</div>
+      </div>
+      <div class="store-status open">营业中</div>
+    </div>
+
+    <!-- 产品列表 -->
+    <div class="section-title">选择洗车套餐</div>
+    <div class="product-list" id="productList"></div>
+
+    <!-- 底部栏 -->
+    <div class="bottom-bar">
+      <div class="price-summary">
+        <div class="summary-label" id="summaryLabel">请选择洗车套餐</div>
+        <div class="summary-price" id="summaryPrice" style="display:none"></div>
+      </div>
+      <button class="submit-btn btn-disabled" id="submitBtn" onclick="goToConfirm()">立即排队</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen 3: 排队确认 ===== -->
+  <div class="screen" id="screen-confirm">
+    <div class="nav-bar nav-bar-with-back">
+      <span class="nav-back" onclick="showScreen('products')">‹</span>
+      <span>确认排队</span>
+    </div>
+    <div class="confirm-body">
+      <div class="confirm-icon">🚗</div>
+      <div class="confirm-product" id="confirmProduct"></div>
+      <div class="confirm-price" id="confirmPrice"></div>
+
+      <div class="info-card">
+        <div class="info-row">
+          <span class="info-label">当前排队人数</span>
+          <span class="info-value highlight" id="confirmQueueCount">加载中...</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">每辆车预计用时</span>
+          <span class="info-value" id="confirmDuration"></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">预计等待时间</span>
+          <span class="info-value time-value" id="confirmWaitTime">计算中...</span>
+        </div>
+      </div>
+
+      <div class="confirm-tip">确认排队后，请在店内等候叫号<br>轮到您时系统会通知您</div>
+      <button class="btn-primary" style="width:100%;padding:16px;font-size:17px" id="confirmBtn" onclick="joinQueue()">确认排队</button>
+    </div>
+  </div>
+
+  <!-- ===== Screen 4: 排队进度 ===== -->
+  <div class="screen" id="screen-progress">
+    <div class="nav-bar">
+      <span style="font-size:17px;font-weight:600">排队进度</span>
+    </div>
+
+    <!-- 店铺信息 + 我的位置 -->
+    <div class="progress-header">
+      <div class="progress-store">
+        <div class="store-avatar-sm">🚙</div>
+        <div>
+          <div class="progress-store-name">泡泡星球科兴店</div>
+          <div class="progress-position" id="progressPosition">前面有 - 人</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 倒计时 -->
+    <div class="countdown-card">
+      <div class="countdown-label">预计等待时间</div>
+      <div class="countdown-time" id="countdownTime">--:--</div>
+      <div class="countdown-sub" id="countdownSub">正在计算...</div>
+    </div>
+
+    <!-- 排队列表 -->
+    <div class="queue-list-title">排队队列</div>
+    <div class="queue-list" id="queueList">
+      <div class="queue-loading">加载排队信息中...</div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="progress-bottom">
+      <button class="btn-cancel" onclick="cancelQueue()">取消排队</button>
+    </div>
+
+    <!-- 服务完成提示 -->
+    <div class="service-complete-overlay" id="serviceComplete">
+      <div class="service-complete-card">
+        <div class="service-complete-icon">✓</div>
+        <div class="service-complete-title">轮到您了！</div>
+        <div class="service-complete-sub">请将车辆驶入洗车通道</div>
+        <button class="btn-primary" style="width:100%;margin-top:24px" onclick="finishAndReturn()">好的</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+<script src="js/queue.js"></script>
+</body>
+</html>
