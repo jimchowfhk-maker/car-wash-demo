@@ -54,6 +54,37 @@ const products = [
   }
 ];
 
+// 头像颜色池
+const AVATAR_COLORS = [
+  '#0071e3', '#34c759', '#ff9500', '#ff3b30', '#af52de',
+  '#5856d6', '#007aff', '#30b0c7', '#ff2d55', '#a2845e',
+  '#5ac8fa', '#ffcc00', '#4cd964', '#ff6482', '#8e8e93'
+];
+
+// 根据用户名生成固定颜色
+function getUserColor(name) {
+  if (!name) return AVATAR_COLORS[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
+}
+
+// 获取用户名首字（用于头像显示）
+function getUserInitial(name) {
+  if (!name) return '?';
+  return name.charAt(0);
+}
+
+// 生成头像HTML
+function avatarHtml(name, size) {
+  const color = getUserColor(name);
+  const initial = getUserInitial(name);
+  const s = size || 32;
+  return `<div class="queue-item-avatar" style="width:${s}px;height:${s}px;background:${color};font-size:${Math.round(s*0.44)}px">${initial}</div>`;
+}
+
 // 模拟用户名池
 const FAKE_NAMES = [
   '李明', '王芳', '张伟', '刘洋', '陈静', '杨磊', '赵敏', '黄强',
@@ -89,7 +120,13 @@ function showScreen(name) {
     renderProducts();
     if (currentUser) {
       document.getElementById('userBadge').textContent = currentUser.username;
+      // 设置用户头像
+      const avatarEl = document.getElementById('userAvatar');
+      avatarEl.style.background = getUserColor(currentUser.username);
+      avatarEl.textContent = getUserInitial(currentUser.username);
     }
+    // 检查是否有正在排队的记录，显示入口横幅
+    checkActiveQueue();
   }
   if (name === 'confirm') {
     loadQueueCount();
@@ -571,7 +608,7 @@ function renderQueueList(entries) {
 
     html += `
       <div class="queue-item ${isMe ? 'is-me' : ''} ${isServing ? 'is-serving' : ''} ${isCompleted ? 'completed' : ''}">
-        <div class="queue-item-pos">${isCompleted ? '✓' : posCounter}</div>
+        ${avatarHtml(entry.username, 32)}
         <div class="queue-item-info">
           <div class="queue-item-name">
             ${displayName}
@@ -756,6 +793,67 @@ function cleanupTimers() {
     try { sb.removeChannel(realtimeSubscription); } catch(e) {}
     realtimeSubscription = null;
   }
+}
+
+// ===== 检查活跃排队（产品页入口横幅）=====
+async function checkActiveQueue() {
+  const banner = document.getElementById('queueEntryBanner');
+  if (!sb || !currentUser) {
+    banner.style.display = 'none';
+    return;
+  }
+
+  try {
+    const { data } = await sb.from('queue_entries')
+      .select('id, product_name, status, position')
+      .eq('user_id', currentUser.id)
+      .in('status', ['waiting', 'serving'])
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (data && data.length > 0) {
+      queueEntryId = data[0].id;
+      const info = document.getElementById('queueEntryInfo');
+      if (data[0].status === 'serving') {
+        info.textContent = data[0].product_name + ' · 正在服务中';
+      } else {
+        info.textContent = data[0].product_name + ' · 排队中，点击查看进度';
+      }
+      banner.style.display = 'flex';
+    } else {
+      banner.style.display = 'none';
+      queueEntryId = null;
+    }
+  } catch (e) {
+    banner.style.display = 'none';
+  }
+}
+
+// 从产品页进入排队进度
+function resumeProgress() {
+  if (!queueEntryId) return;
+  startSimulation();
+  showScreen('progress');
+}
+
+// 从进度页返回产品页（不取消排队）
+function backToProducts() {
+  // 停止倒计时刷新（但保留模拟和realtime）
+  if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+  if (realtimeSubscription) {
+    try { sb.removeChannel(realtimeSubscription); } catch(e) {}
+    realtimeSubscription = null;
+  }
+  showScreen('products');
+}
+
+// ===== 刷新排队列表 =====
+async function refreshQueue() {
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('spinning');
+  await loadQueueList();
+  setTimeout(() => btn.classList.remove('spinning'), 500);
+  showToast('已刷新');
 }
 
 // ===== Toast =====

@@ -33,7 +33,10 @@
     <div class="nav-bar">
       <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
         <span style="font-size:17px;font-weight:600">泡泡星球科兴店</span>
-        <span class="user-badge" id="userBadge" onclick="doLogout()"></span>
+        <div class="user-badge-wrap" onclick="doLogout()">
+          <div class="user-badge-avatar" id="userAvatar"></div>
+          <span class="user-badge" id="userBadge"></span>
+        </div>
       </div>
     </div>
 
@@ -45,6 +48,18 @@
         <div class="store-desc">机器人洗车 · 无接触清洁</div>
       </div>
       <div class="store-status open">营业中</div>
+    </div>
+
+    <!-- 查看排队进度入口 -->
+    <div class="queue-entry-banner" id="queueEntryBanner" style="display:none" onclick="resumeProgress()">
+      <div class="queue-entry-left">
+        <div class="queue-entry-dot"></div>
+        <div>
+          <div class="queue-entry-text">您正在排队中</div>
+          <div class="queue-entry-sub" id="queueEntryInfo">点击查看排队进度</div>
+        </div>
+      </div>
+      <span class="queue-entry-arrow">›</span>
     </div>
 
     <!-- 产品列表 -->
@@ -95,7 +110,13 @@
   <!-- ===== Screen 4: 排队进度 ===== -->
   <div class="screen" id="screen-progress">
     <div class="nav-bar">
-      <span style="font-size:17px;font-weight:600">排队进度</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <span class="nav-back" onclick="backToProducts()" style="margin-right:8px">‹</span>
+        <span style="font-size:17px;font-weight:600;flex:1">排队进度</span>
+        <button class="refresh-btn" onclick="refreshQueue()" id="refreshBtn">
+          <span class="refresh-icon">↻</span>
+        </button>
+      </div>
     </div>
 
     <!-- 店铺信息 + 我的位置 -->
