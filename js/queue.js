@@ -98,13 +98,13 @@ function init() {
   sb = initSupabase();
 
   // 检查登录状态
-  const savedUser = sessionStorage.getItem('queue_user');
+  const savedUser = localStorage.getItem('queue_user');
   if (savedUser) {
     try {
       currentUser = JSON.parse(savedUser);
       showScreen('products');
     } catch (e) {
-      sessionStorage.removeItem('queue_user');
+      localStorage.removeItem('queue_user');
     }
   }
 }
@@ -188,7 +188,7 @@ async function doRegister() {
     }
 
     currentUser = { id: data.id, username: data.username };
-    sessionStorage.setItem('queue_user', JSON.stringify(currentUser));
+    localStorage.setItem('queue_user', JSON.stringify(currentUser));
     showToast('注册成功！');
     showScreen('products');
   } catch (e) {
@@ -226,7 +226,7 @@ async function doLogin() {
     }
 
     currentUser = { id: data.id, username: data.username };
-    sessionStorage.setItem('queue_user', JSON.stringify(currentUser));
+    localStorage.setItem('queue_user', JSON.stringify(currentUser));
     showToast('登录成功！');
     showScreen('products');
   } catch (e) {
@@ -236,7 +236,7 @@ async function doLogin() {
 }
 
 function doLogout() {
-  sessionStorage.removeItem('queue_user');
+  localStorage.removeItem('queue_user');
   currentUser = null;
   selectedProduct = null;
   selectedIndex = null;
